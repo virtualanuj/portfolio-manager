@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -19,6 +20,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "price")
 public class PriceEntity {
+
+    private static final int PRICE_SCALE = 8;
 
     @Id
     @Column(name = "instrument_id")
@@ -92,7 +95,7 @@ public class PriceEntity {
     }
 
     public void setManualPrice(BigDecimal manualPrice, LocalDate asOf) {
-        this.manualPrice = manualPrice;
+        this.manualPrice = manualPrice.setScale(PRICE_SCALE, RoundingMode.HALF_UP);
         this.manualAsOf = asOf;
     }
 

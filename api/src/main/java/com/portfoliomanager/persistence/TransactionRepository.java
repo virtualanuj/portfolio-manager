@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TransactionRepository extends JpaRepository<TransactionEntity, UUID> {
 
     boolean existsByAccountId(UUID accountId);
+
+    boolean existsByInstrumentId(UUID instrumentId);
 }

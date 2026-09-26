@@ -3,6 +3,7 @@ package com.portfoliomanager.web;
 import com.portfoliomanager.application.ConflictException;
 import com.portfoliomanager.application.NotFoundException;
 import com.portfoliomanager.application.OversellException;
+import com.portfoliomanager.application.ValidationException;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -49,6 +50,15 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     ProblemDetail conflict(ConflictException exception) {
         return ProblemFactory.of(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    ProblemDetail invalid(ValidationException exception) {
+        return ProblemFactory.validation(
+                exception.getMessage(),
+                List.of(
+                        new ProblemFactory.FieldError(
+                                exception.getField(), exception.getMessage())));
     }
 
     @ExceptionHandler(OversellException.class)
