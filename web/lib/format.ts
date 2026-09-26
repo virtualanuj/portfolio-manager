@@ -80,3 +80,10 @@ export function formatUnitPrice(value: DecimalString | null): string {
   const trimmed = fraction.replace(/0+$/, "").padEnd(2, "0");
   return `$${groupThousands(integer)}.${trimmed}`;
 }
+
+/** A difference between two percentages, in percentage points: "+15.00 pts". */
+export function formatPoints(value: DecimalString | null, options: SignOption = {}): string {
+  if (value === null) return DASH;
+  const { rounded, text } = fixed(value, 2);
+  return withSign(rounded, `${text} pts`, options.signed);
+}

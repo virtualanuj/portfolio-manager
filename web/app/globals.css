@@ -18,6 +18,10 @@
   --warn: #8a5a00;
   --warn-bg: #fbecc8;
   --focus: #0b6e6e;
+  --chart-1: #0b6e6e;
+  --chart-2: #4f5fc4;
+  --chart-3: #b7791f;
+  --chart-4: #b8446b;
   --radius-control: 0.5rem;
   --radius-panel: 0.875rem;
 }
@@ -40,6 +44,10 @@
     --warn: #f0be5a;
     --warn-bg: #33270a;
     --focus: #4cc2b0;
+    --chart-1: #4cc2b0;
+    --chart-2: #8b9cf0;
+    --chart-3: #f0be5a;
+    --chart-4: #f08ab0;
   }
 }
 
@@ -60,6 +68,10 @@
   --warn: #f0be5a;
   --warn-bg: #33270a;
   --focus: #4cc2b0;
+  --chart-1: #4cc2b0;
+  --chart-2: #8b9cf0;
+  --chart-3: #f0be5a;
+  --chart-4: #f08ab0;
 }
 
 @theme inline {

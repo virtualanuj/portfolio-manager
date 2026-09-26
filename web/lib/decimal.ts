@@ -58,3 +58,17 @@ export function compareDecimals(left: string, right: string): number {
   const signedB = roundToScale(b, scale).units * (b.negative ? -1n : 1n);
   return signedA < signedB ? -1 : signedA > signedB ? 1 : 0;
 }
+
+/** Sums decimal strings exactly; the result has the largest scale of the inputs (at least `minScale`). */
+export function sumDecimals(values: string[], minScale = 0): string {
+  const parsed = values.map(parseDecimal);
+  const scale = Math.max(minScale, ...parsed.map((p) => p.scale));
+  let total = 0n;
+  for (const value of parsed) {
+    const units = roundToScale(value, scale).units;
+    total += value.negative ? -units : units;
+  }
+  const negative = total < 0n;
+  const { integer, fraction } = toParts({ negative, units: negative ? -total : total, scale });
+  return `${negative ? "-" : ""}${integer}${scale > 0 ? `.${fraction}` : ""}`;
+}

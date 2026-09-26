@@ -144,3 +144,17 @@ export type ImportCommitResult = {
   instrumentsCreated: number;
   duplicatesSkipped: number;
 };
+
+export type AllocationRow = {
+  assetType: AssetType;
+  value: DecimalString;
+  actualPct: DecimalString;
+  targetPct: DecimalString | null;
+  driftPct: DecimalString | null;
+};
+
+export type AllocationData = {
+  totalValue: DecimalString;
+  targetsSet: boolean;
+  rows: AllocationRow[];
+};
