@@ -103,3 +103,42 @@ export async function refresh(page: Page) {
     timeout: 20_000,
   });
 }
+
+/** Direct API calls for setup that is not the point of a test; the UI paths are covered elsewhere. */
+export async function seedAccount(request: APIRequestContext, name: string, type = "BROKERAGE") {
+  const response = await request.post("/api/accounts", { data: { name, type } });
+  expect(response.status()).toBe(201);
+  return ((await response.json()) as { id: string }).id;
+}
+
+export async function seedInstrument(
+  request: APIRequestContext,
+  data: { symbol: string; assetType: string; priceSource?: string; sourceId?: string },
+) {
+  const response = await request.post("/api/instruments", { data });
+  expect(response.status()).toBe(201);
+  return ((await response.json()) as { id: string }).id;
+}
+
+export async function seedBuy(
+  request: APIRequestContext,
+  data: {
+    accountId: string;
+    instrumentId: string;
+    quantity: string;
+    unitPrice: string;
+    tradeDate?: string;
+  },
+) {
+  const response = await request.post("/api/transactions", {
+    data: { type: "BUY", tradeDate: "2026-01-05", ...data },
+  });
+  expect(response.status()).toBe(201);
+}
+
+export async function setPrice(request: APIRequestContext, instrumentId: string, price: string) {
+  const response = await request.put(`/api/instruments/${instrumentId}/manual-price`, {
+    data: { price, asOf: today() },
+  });
+  expect(response.status()).toBe(200);
+}
