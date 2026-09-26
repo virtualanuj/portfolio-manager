@@ -85,3 +85,19 @@ export type Problem = {
   errors?: Array<{ field: string; message: string }>;
   [extra: string]: unknown;
 };
+
+export type RefreshStatus = "RUNNING" | "SUCCEEDED" | "PARTIAL" | "FAILED";
+
+export type RefreshRun = {
+  id: string;
+  status: RefreshStatus;
+  startedAt: string;
+  finishedAt: string | null;
+  results: Array<{ symbol: string; ok: boolean; message: string | null }>;
+};
+
+export type SnapshotPoint = {
+  date: string;
+  totalValue: DecimalString;
+  totalCostBasis: DecimalString;
+};

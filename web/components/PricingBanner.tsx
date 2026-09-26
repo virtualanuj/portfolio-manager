@@ -21,7 +21,11 @@ export function PricingBanner({ stalePositions, unpricedPositions }: Props) {
     );
   }
   return (
-    <div role="status" className="rounded-panel bg-warn-bg px-4 py-3 text-sm text-warn">
+    <div
+      role="status"
+      aria-label="Pricing warning"
+      className="rounded-panel bg-warn-bg px-4 py-3 text-sm text-warn"
+    >
       {parts.join("; ")}. Refresh prices, or set a manual price in Settings.
     </div>
   );

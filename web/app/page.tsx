@@ -6,6 +6,7 @@ import { Delta } from "@/components/Delta";
 import { KpiCard } from "@/components/KpiCard";
 import { Money } from "@/components/Money";
 import { PricingBanner } from "@/components/PricingBanner";
+import { RefreshButton } from "@/components/RefreshButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { Dashboard } from "@/lib/types";
@@ -33,7 +34,10 @@ export default function DashboardPage() {
   const positions = data.pricedPositions + data.unpricedPositions;
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        {positions > 0 && <RefreshButton />}
+      </div>
       {positions === 0 ? (
         <EmptyState
           title="No holdings yet"
