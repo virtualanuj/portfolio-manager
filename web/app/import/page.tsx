@@ -139,7 +139,7 @@ export default function ImportPage() {
           One header row, UTF-8, comma-separated. Column names are not case-sensitive and extra
           columns are ignored. Rows are checked before anything is saved, and you review them first.
         </p>
-        <div className="overflow-x-auto rounded-panel border border-line bg-surface">
+        <div className="relative overflow-x-auto rounded-panel border border-line bg-surface">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>

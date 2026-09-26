@@ -57,7 +57,7 @@ export function DataTable<T>({ columns, data, emptyState, loading, initialSortin
   if (data.length === 0) return <>{emptyState}</>;
 
   return (
-    <div className="max-h-[70vh] overflow-auto rounded-panel border border-line bg-surface">
+    <div className="relative max-h-[70vh] overflow-auto rounded-panel border border-line bg-surface">
       <table className="w-full border-collapse text-sm">
         <thead className="sticky top-0 bg-surface">
           {table.getHeaderGroups().map((group) => (

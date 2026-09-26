@@ -55,7 +55,7 @@ export function ImportPreview({ preview, onCommit, onDiscard, busy }: Props) {
           ))}
         </ul>
       )}
-      <div className="max-h-[60vh] overflow-auto rounded-panel border border-line bg-surface">
+      <div className="relative max-h-[60vh] overflow-auto rounded-panel border border-line bg-surface">
         <table className="w-full border-collapse text-sm">
           <thead className="sticky top-0 bg-surface">
             <tr>

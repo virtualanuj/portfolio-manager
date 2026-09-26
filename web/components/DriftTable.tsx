@@ -48,7 +48,7 @@ function DriftCell({ row }: { row: AllocationRow }) {
 export function DriftTable({ rows, targetsSet }: { rows: AllocationRow[]; targetsSet: boolean }) {
   const heading = "border-b border-line px-3 py-2 font-medium whitespace-nowrap text-muted";
   return (
-    <div className="overflow-x-auto rounded-panel border border-line bg-surface">
+    <div className="relative overflow-x-auto rounded-panel border border-line bg-surface">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr>

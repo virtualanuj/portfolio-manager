@@ -137,7 +137,7 @@ export function ValueChart({ points, today = todayIso() }: Props) {
       )}
       <details className="text-sm">
         <summary className="cursor-pointer text-muted">Show the values as a table</summary>
-        <div className="mt-2 max-h-72 overflow-auto rounded-panel border border-line">
+        <div className="relative mt-2 max-h-72 overflow-auto rounded-panel border border-line">
           <table aria-label="Portfolio value by date" className="w-full border-collapse">
             <thead>
               <tr>
