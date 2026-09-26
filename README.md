@@ -67,7 +67,12 @@ Follow these steps in order.
    ```
    It starts Postgres, waits until it is healthy, then starts the API and the web app. The first run also installs the web dependencies and downloads Gradle, so it takes a few minutes. You should see, in order: the `db` container reported healthy, the API log line `Started ApiApplication`, and Next.js printing `Ready`.
 6. **Open the app** at <http://127.0.0.1:3000>. It starts empty.
-7. **Optional: load demo data.** In a second terminal in the same folder, run `scripts/seed-demo.sh`, then reload the page.
+7. **Optional: load demo data.** To see the app with realistic data instead of an empty screen, leave `scripts/dev.sh` running and open a second terminal in the same folder:
+   ```bash
+   source scripts/env.sh
+   scripts/seed-demo.sh
+   ```
+   It needs the API running (step 5) and `jq` installed (`brew install jq`). It adds three accounts, seven instruments, 21 transactions, manual prices and target allocations, then prints `Done`. Reload the page to see it. It refuses to run if the database already has transactions; to start clean first, stop the app and run `scripts/reset-db.sh` (it deletes all local data after you confirm), then start again from step 5. See "Demo data" below for more.
 8. **Stop:** press Ctrl-C in the terminal running `scripts/dev.sh`. That stops the API and the web app. The Postgres container keeps running (your data stays); stop it with `docker compose down`, and add `-v` only if you also want to delete the data.
 
 Next time, repeat steps 4 and 5 only (and step 1 if Docker is not running).
