@@ -64,3 +64,10 @@ export function signOf(value: DecimalString | null): "positive" | "negative" | "
   if (isZero(parsed)) return "zero";
   return parsed.negative ? "negative" : "positive";
 }
+
+/** Today's date in the browser's time zone as YYYY-MM-DD, for date inputs. */
+export function todayIso(now: Date = new Date()): string {
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}

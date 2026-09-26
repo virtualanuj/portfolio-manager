@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -15,6 +15,7 @@ type Props = {
 /** A modal built on the native dialog element: it traps focus and closes on Escape. */
 export function Dialog({ open, onClose, title, children, className }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const dialog = ref.current;
@@ -32,7 +33,7 @@ export function Dialog({ open, onClose, title, children, className }: Props) {
   return (
     <dialog
       ref={ref}
-      aria-labelledby="dialog-title"
+      aria-labelledby={open ? titleId : undefined}
       onClose={onClose}
       onCancel={(event) => {
         event.preventDefault();
@@ -45,7 +46,7 @@ export function Dialog({ open, onClose, title, children, className }: Props) {
     >
       {open && (
         <>
-          <h2 id="dialog-title" className="mb-4 text-lg font-semibold">
+          <h2 id={titleId} className="mb-4 text-lg font-semibold">
             {title}
           </h2>
           {children}
