@@ -8,6 +8,8 @@ spring:
 
 app:
   timezone: ${APP_TIMEZONE:UTC}
+  pricing:
+    coingecko-api-key: ${COINGECKO_API_KEY:}
 
 management:
   endpoints:
