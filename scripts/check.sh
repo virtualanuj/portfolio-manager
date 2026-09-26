@@ -21,4 +21,7 @@ echo "== web: format, tests, lint, build =="
 echo "== privacy: no trackers or CDNs in the build =="
 scripts/check-privacy.sh
 
+echo "== docs: README links =="
+scripts/check-readme-links.sh
+
 echo "All checks passed."

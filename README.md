@@ -154,7 +154,7 @@ scripts/        dev, reset-db, check, seed-demo and the check scripts
 docker-compose.yml   local Postgres
 ```
 
-Documents: `docs/intent.md` (requirements), `docs/spec.md` (design), `docs/plan.md` (milestones), `docs/standards.md` (coding standards).
+Documents: `docs/intent.md` (requirements), `docs/spec.md` (design), `docs/plan.md` (milestones), `docs/standards.md` (coding standards), `docs/acceptance-local.md` (Phase 1 acceptance record).
 
 ## Troubleshooting
 

@@ -365,3 +365,35 @@ cd web && npm run dev                    # 127.0.0.1:3000, API_BASE_URL=http://1
 
 - **Snapshot restore:** should the JSON export be importable (full restore including snapshots), given the free-tier database can expire? Not in v1 as written.
 - **Free Postgres expiry:** check Render's current free-database lifetime before storing real data, and set a calendar reminder to export before it lapses.
+
+## 17. Implementation decisions (Phase 1 build)
+
+Choices made while building M0 to M6 where this spec or the plan was silent or a tool forced a change. Each is one line: the decision and why.
+
+**Approved by the owner during the build**
+- The health endpoint is `/api/actuator/health/liveness` (actuator base path `/api/actuator`), so the proxy reaches it unchanged.
+- Spotless (google-java-format, AOSP) and `prettier --check` run in `scripts/check.sh`, as `standards.md` requires, though `plan.md` had no task for them (`M0-T7`).
+
+**Tooling**
+- `start.spring.io` returned HTTP 500 for every request, so `api/` was written by hand and the Gradle wrapper generated locally (Gradle 9.2.1, Boot 4.1.1).
+- `@tanstack/react-table` is pinned to v8; v9 has a different API. `@types/node` is 22 (Vitest 5 peer requirement) and the TypeScript target is ES2020 (BigInt decimal rounding).
+- Web font is IBM Plex Sans via `next/font` (self-hosted at build). Schibsted Grotesk was tried first; its tabular figures rendered slab-like in tables.
+- End-to-end tests run on their own stack (database `portfolio_e2e`, API :8081, web :3100). `POST /api/e2e/reset` exists only under the `e2e` profile and refuses any other database.
+
+**Data and rules**
+- `price.instrument_id` cascades on instrument delete (derived data); the spec named no rule.
+- Instruments: the source id defaults to the symbol for YAHOO; a crypto needs a source id unless priced MANUAL; YAHOO must not price crypto and COINGECKO must not price anything else. Symbols are trimmed, not case-folded.
+- Refresh status: FAILED means every attempted fetch failed. No attempt (only manual-priced holdings) is SUCCEEDED. A snapshot is written for SUCCEEDED and PARTIAL, never for FAILED. Unpriced positions get a snapshot holding row with null price and value.
+- Yahoo closes are rounded to 7 significant digits to remove single-precision noise; CoinGecko's previous price is `price / (1 + change24h/100)` at scale 8.
+- Import: duplicates are left out of the position replay unless included, and commit re-validates against current data. A row's line number is the line it ends on. `ImportService` lives in `application` (not `importing`) so the layering rule holds.
+- Export: free-text cells starting with `=`, `+`, `-` or `@` get a leading apostrophe, so re-importing such a note keeps the apostrophe.
+
+**API shapes not defined in section 9**
+- `GET /api/transactions` returns `{items, page, size, totalItems}`, newest first (default size 50, max 200).
+- `GET /api/holdings?sort=<column>` with a `-` prefix for descending, missing values last; rows also carry `costBasis` and `dayChange`.
+- `PUT/GET /api/allocation/targets` use a list of `{assetType, targetPct}`; an empty list clears them. `GET /api/allocation` returns `{totalValue, targetsSet, rows}`.
+- `GET /api/refresh/latest` is 404 before any run. `POST /api/imports` returns 413 for files over 2 MB.
+
+**Not built**
+- The dashboard mini value chart (section 10); the plan lists only the History screen for M3.
+
