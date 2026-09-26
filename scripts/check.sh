@@ -7,10 +7,10 @@ cd "$ROOT"
 # shellcheck source=scripts/env.sh
 source scripts/env.sh
 
-echo "== api: tests =="
-(cd api && ./gradlew test)
+echo "== api: format, tests =="
+(cd api && ./gradlew spotlessCheck test)
 
-echo "== web: tests, lint, build =="
-(cd web && npm run test && npm run lint && npm run build)
+echo "== web: format, tests, lint, build =="
+(cd web && npm run format:check && npm run test && npm run lint && npm run build)
 
 echo "All checks passed."

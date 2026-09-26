@@ -24,7 +24,8 @@ class MigrationIT extends AbstractIntegrationTest {
                         + " instrument, account CASCADE");
         accountId = UUID.randomUUID();
         instrumentId = UUID.randomUUID();
-        jdbc.update("INSERT INTO account (id, name, type) VALUES (?, 'Main', 'BROKERAGE')", accountId);
+        jdbc.update(
+                "INSERT INTO account (id, name, type) VALUES (?, 'Main', 'BROKERAGE')", accountId);
         jdbc.update(
                 "INSERT INTO instrument (id, symbol, name, asset_type, price_source, source_id)"
                         + " VALUES (?, 'VTI', 'Vanguard Total', 'ETF', 'YAHOO', 'VTI')",
@@ -75,7 +76,8 @@ class MigrationIT extends AbstractIntegrationTest {
 
     @Test
     void secondRunningRefreshRunViolatesPartialUniqueIndex() {
-        jdbc.update("INSERT INTO refresh_run (id, status) VALUES (?, 'RUNNING')", UUID.randomUUID());
+        jdbc.update(
+                "INSERT INTO refresh_run (id, status) VALUES (?, 'RUNNING')", UUID.randomUUID());
         assertThatThrownBy(
                         () ->
                                 jdbc.update(
@@ -86,8 +88,10 @@ class MigrationIT extends AbstractIntegrationTest {
 
     @Test
     void finishedRunsDoNotBlockANewRunningRun() {
-        jdbc.update("INSERT INTO refresh_run (id, status) VALUES (?, 'SUCCEEDED')", UUID.randomUUID());
-        jdbc.update("INSERT INTO refresh_run (id, status) VALUES (?, 'RUNNING')", UUID.randomUUID());
+        jdbc.update(
+                "INSERT INTO refresh_run (id, status) VALUES (?, 'SUCCEEDED')", UUID.randomUUID());
+        jdbc.update(
+                "INSERT INTO refresh_run (id, status) VALUES (?, 'RUNNING')", UUID.randomUUID());
     }
 
     @Test
