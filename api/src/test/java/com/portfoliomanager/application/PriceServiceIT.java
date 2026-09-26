@@ -18,19 +18,15 @@ import com.portfoliomanager.persistence.PriceRepository;
 import com.portfoliomanager.persistence.TransactionEntity;
 import com.portfoliomanager.persistence.TransactionRepository;
 import com.portfoliomanager.pricing.PriceFetchStatus;
-import com.portfoliomanager.pricing.PriceProvider;
 import com.portfoliomanager.pricing.PriceResult;
 import com.portfoliomanager.pricing.PriceSource;
+import com.portfoliomanager.testsupport.FakePriceProvider;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,34 +38,6 @@ class PriceServiceIT extends AbstractIntegrationTest {
     private static final Instant NOW = Instant.parse("2026-09-26T10:00:00Z");
     private static final Clock CLOCK = Clock.fixed(NOW, ZoneOffset.UTC);
 
-    /** A provider whose answers the test controls and whose calls it can inspect. */
-    private static final class FakeProvider implements PriceProvider {
-        private final PriceSource source;
-        final Map<String, PriceResult> answers = new LinkedHashMap<>();
-        final List<Collection<String>> calls = new ArrayList<>();
-
-        FakeProvider(PriceSource source) {
-            this.source = source;
-        }
-
-        @Override
-        public PriceSource source() {
-            return source;
-        }
-
-        @Override
-        public Map<String, PriceResult> fetch(Collection<String> sourceIds) {
-            calls.add(List.copyOf(sourceIds));
-            Map<String, PriceResult> result = new LinkedHashMap<>();
-            for (String id : sourceIds) {
-                if (answers.containsKey(id)) {
-                    result.put(id, answers.get(id));
-                }
-            }
-            return result;
-        }
-    }
-
     @Autowired private InstrumentRepository instruments;
     @Autowired private PriceRepository prices;
     @Autowired private AccountRepository accounts;
@@ -77,8 +45,8 @@ class PriceServiceIT extends AbstractIntegrationTest {
     @Autowired private PlatformTransactionManager transactionManager;
     @Autowired private MockMvc mvc;
 
-    private FakeProvider yahoo;
-    private FakeProvider coingecko;
+    private FakePriceProvider yahoo;
+    private FakePriceProvider coingecko;
     private PriceService service;
     private InstrumentEntity vti;
     private InstrumentEntity btc;
@@ -86,8 +54,8 @@ class PriceServiceIT extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        yahoo = new FakeProvider(PriceSource.YAHOO);
-        coingecko = new FakeProvider(PriceSource.COINGECKO);
+        yahoo = new FakePriceProvider(PriceSource.YAHOO);
+        coingecko = new FakePriceProvider(PriceSource.COINGECKO);
         service =
                 new PriceService(
                         List.of(yahoo, coingecko), instruments, prices, CLOCK, transactionManager);
