@@ -2,6 +2,7 @@ package com.portfoliomanager.application;
 
 import com.portfoliomanager.domain.AssetType;
 import com.portfoliomanager.domain.FifoEngine;
+import com.portfoliomanager.domain.PortfolioTotals;
 import com.portfoliomanager.domain.Position;
 import com.portfoliomanager.domain.PositionValue;
 import com.portfoliomanager.domain.PriceInput;
@@ -69,6 +70,12 @@ public class PortfolioService {
                 .filter(h -> assetType == null || h.position().assetType() == assetType)
                 .sorted(comparator)
                 .toList();
+    }
+
+    /** Totals over the priced open positions, with counts of stale and unpriced ones. */
+    @Transactional(readOnly = true)
+    public PortfolioTotals totals() {
+        return Valuation.totals(allHoldings().stream().map(HoldingView::position).toList());
     }
 
     /** Every open position (quantity above zero), unsorted. */
