@@ -71,3 +71,12 @@ export function todayIso(now: Date = new Date()): string {
   const day = String(now.getDate()).padStart(2, "0");
   return `${now.getFullYear()}-${month}-${day}`;
 }
+
+/** A per-unit price: at least two decimals, more when the price needs them (0.00012). */
+export function formatUnitPrice(value: DecimalString | null): string {
+  if (value === null) return DASH;
+  const parsed = parseDecimal(value);
+  const { integer, fraction } = toParts(parsed);
+  const trimmed = fraction.replace(/0+$/, "").padEnd(2, "0");
+  return `$${groupThousands(integer)}.${trimmed}`;
+}

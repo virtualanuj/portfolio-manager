@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatMoney, formatPct, formatQty, signOf } from "./format";
+import { formatDate, formatMoney, formatPct, formatQty, formatUnitPrice, signOf } from "./format";
 import type { DecimalString } from "./types";
 
 const d = (value: string) => value as DecimalString;
@@ -84,5 +84,14 @@ describe("signOf", () => {
     expect(signOf(d("-0.0001"))).toBe("negative");
     expect(signOf(d("0.0000"))).toBe("zero");
     expect(signOf(null)).toBe("zero");
+  });
+});
+
+describe("formatUnitPrice", () => {
+  it("shows at least two decimals and keeps the ones a small price needs", () => {
+    expect(formatUnitPrice(d("100"))).toBe("$100.00");
+    expect(formatUnitPrice(d("0.00012000"))).toBe("$0.00012");
+    expect(formatUnitPrice(d("65000.50000000"))).toBe("$65,000.50");
+    expect(formatUnitPrice(null)).toBe("—");
   });
 });
