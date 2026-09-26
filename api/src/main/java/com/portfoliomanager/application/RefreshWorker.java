@@ -25,6 +25,7 @@ public class RefreshWorker {
 
     private final PortfolioService portfolio;
     private final PriceService priceService;
+    private final SnapshotService snapshotService;
     private final RefreshRunRepository runs;
     private final Clock clock;
     private final TransactionTemplate transactions;
@@ -32,16 +33,22 @@ public class RefreshWorker {
     public RefreshWorker(
             PortfolioService portfolio,
             PriceService priceService,
+            SnapshotService snapshotService,
             RefreshRunRepository runs,
             Clock clock,
             PlatformTransactionManager transactionManager) {
         this.portfolio = portfolio;
         this.priceService = priceService;
+        this.snapshotService = snapshotService;
         this.runs = runs;
         this.clock = clock;
         this.transactions = new TransactionTemplate(transactionManager);
     }
 
+    /**
+     * Fetches prices for open positions, then records today's snapshot unless every fetch failed,
+     * so a total outage leaves the previous snapshot untouched.
+     */
     public void run(UUID runId) {
         List<RefreshResultItem> results;
         RefreshStatus status;
@@ -56,6 +63,9 @@ public class RefreshWorker {
                             .map(o -> new RefreshResultItem(o.symbol(), o.ok(), o.message()))
                             .toList();
             status = statusOf(outcomes);
+            if (status != RefreshStatus.FAILED) {
+                snapshotService.snapshotToday();
+            }
         } catch (Exception e) {
             // Boundary: nothing may escape a background run, or it would stay RUNNING.
             log.error("Refresh {} failed unexpectedly", runId, e);

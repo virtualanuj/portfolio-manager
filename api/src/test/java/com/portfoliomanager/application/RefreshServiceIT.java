@@ -118,6 +118,7 @@ class RefreshServiceIT extends AbstractIntegrationTest {
     @Autowired private AccountRepository accounts;
     @Autowired private InstrumentRepository instruments;
     @Autowired private TransactionRepository transactions;
+    @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbc;
 
     private AccountEntity account;
 
@@ -331,5 +332,72 @@ class RefreshServiceIT extends AbstractIntegrationTest {
     void findingAnUnknownRunIsNotFound() {
         assertThatThrownBy(() -> service.find(UUID.randomUUID()))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    private void existingSnapshotWithTotal(String total) {
+        jdbc.update(
+                "INSERT INTO snapshot (snap_date, total_value, total_cost_basis) VALUES (DATE '2026-09-26', ?::numeric, 1)",
+                total);
+    }
+
+    private BigDecimal snapshotTotal() {
+        return jdbc.queryForObject(
+                "SELECT total_value FROM snapshot WHERE snap_date = DATE '2026-09-26'",
+                BigDecimal.class);
+    }
+
+    @Test
+    void aSucceededRunWritesTodaysSnapshot() {
+        held("VTI", AssetType.ETF, PriceSource.YAHOO, "VTI");
+        fakeYahoo.answers.put("VTI", ok("120"));
+
+        service.start();
+        runner.runAll();
+
+        assertThat(snapshotTotal()).isEqualByComparingTo("1200");
+    }
+
+    @Test
+    void aPartialRunStillWritesASnapshotUsingLastKnownPrices() {
+        held("VTI", AssetType.ETF, PriceSource.YAHOO, "VTI");
+        held("BTC", AssetType.CRYPTO, PriceSource.COINGECKO, "bitcoin");
+        fakeYahoo.answers.put("VTI", ok("120"));
+        fakeCoinGecko.answers.put("bitcoin", PriceResult.failure("HTTP 429"));
+
+        UUID id = service.start();
+        runner.runAll();
+
+        assertThat(service.find(id).status()).isEqualTo(RefreshStatus.PARTIAL);
+        assertThat(snapshotTotal()).isEqualByComparingTo("1200");
+        assertThat(jdbc.queryForObject("SELECT unpriced_positions FROM snapshot", Integer.class))
+                .isEqualTo(1);
+    }
+
+    @Test
+    void aFailedRunLeavesTheExistingSnapshotUntouched() {
+        existingSnapshotWithTotal("777");
+        held("VTI", AssetType.ETF, PriceSource.YAHOO, "VTI");
+        fakeYahoo.answers.put("VTI", PriceResult.failure("HTTP 500"));
+
+        UUID id = service.start();
+        runner.runAll();
+
+        assertThat(service.find(id).status()).isEqualTo(RefreshStatus.FAILED);
+        assertThat(snapshotTotal()).isEqualByComparingTo("777");
+    }
+
+    @Test
+    void refreshingTwiceTheSameDayLeavesOneSnapshotRow() {
+        held("VTI", AssetType.ETF, PriceSource.YAHOO, "VTI");
+        fakeYahoo.answers.put("VTI", ok("120"));
+
+        service.start();
+        runner.runAll();
+        fakeYahoo.answers.put("VTI", ok("130"));
+        service.start();
+        runner.runAll();
+
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM snapshot", Long.class)).isEqualTo(1);
+        assertThat(snapshotTotal()).isEqualByComparingTo("1300");
     }
 }
