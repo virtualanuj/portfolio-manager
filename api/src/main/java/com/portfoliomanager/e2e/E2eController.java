@@ -5,8 +5,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.sql.DataSource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,10 +36,18 @@ public class E2eController {
 
     private final StubPriceProvider yahoo;
     private final StubPriceProvider coingecko;
+    private final JdbcTemplate jdbc;
+    private final DataSource dataSource;
 
-    E2eController(StubPriceProvider yahooStub, StubPriceProvider coingeckoStub) {
+    E2eController(
+            StubPriceProvider yahooStub,
+            StubPriceProvider coingeckoStub,
+            JdbcTemplate jdbc,
+            DataSource dataSource) {
         this.yahoo = yahooStub;
         this.coingecko = coingeckoStub;
+        this.jdbc = jdbc;
+        this.dataSource = dataSource;
     }
 
     /** Replaces the script of each provider that is present in the body. */
@@ -48,9 +58,23 @@ public class E2eController {
         apply(coingecko, script.coingecko());
     }
 
+    /**
+     * Clears the price scripts and deletes all data. It refuses to touch any database that is not
+     * the dedicated end-to-end one, so a misconfigured run cannot wipe real data.
+     */
     @PostMapping("/reset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void reset() {
+    void reset() throws java.sql.SQLException {
+        try (var connection = dataSource.getConnection()) {
+            String url = connection.getMetaData().getURL();
+            if (!url.endsWith("/portfolio_e2e")) {
+                throw new IllegalStateException(
+                        "Refusing to reset a database that is not portfolio_e2e");
+            }
+        }
+        jdbc.execute(
+                "TRUNCATE snapshot_holding, snapshot, \"transaction\", price, refresh_run,"
+                        + " target_allocation, import_row, import_batch, instrument, account CASCADE");
         yahoo.configure(false, Map.of());
         coingecko.configure(false, Map.of());
     }
