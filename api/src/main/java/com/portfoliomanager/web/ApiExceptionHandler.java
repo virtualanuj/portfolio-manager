@@ -4,7 +4,10 @@ import com.portfoliomanager.application.ConflictException;
 import com.portfoliomanager.application.NotFoundException;
 import com.portfoliomanager.application.OversellException;
 import com.portfoliomanager.application.RefreshInProgressException;
+import com.portfoliomanager.application.UnprocessableException;
 import com.portfoliomanager.application.ValidationException;
+import com.portfoliomanager.importing.CsvFormatException;
+import com.portfoliomanager.importing.CsvTooLargeException;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /** The one place exceptions become {@code application/problem+json} responses. */
@@ -67,6 +71,37 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail problem = ProblemFactory.of(HttpStatus.CONFLICT, exception.getMessage());
         problem.setProperty("runId", exception.getRunId().toString());
         return problem;
+    }
+
+    @ExceptionHandler(CsvTooLargeException.class)
+    ProblemDetail csvTooLarge(CsvTooLargeException exception) {
+        return ProblemFactory.of(HttpStatus.CONTENT_TOO_LARGE, exception.getMessage());
+    }
+
+    @ExceptionHandler(CsvFormatException.class)
+    ProblemDetail unreadableCsv(CsvFormatException exception) {
+        ProblemDetail problem = ProblemFactory.of(HttpStatus.BAD_REQUEST, exception.getMessage());
+        if (exception.getLineNumber() > 0) {
+            problem.setProperty("line", exception.getLineNumber());
+        }
+        return problem;
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException exception,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
+                .body(
+                        ProblemFactory.of(
+                                HttpStatus.CONTENT_TOO_LARGE, "The file is larger than 2 MB"));
+    }
+
+    @ExceptionHandler(UnprocessableException.class)
+    ProblemDetail unprocessable(UnprocessableException exception) {
+        return ProblemFactory.of(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
     }
 
     @ExceptionHandler(OversellException.class)

@@ -74,7 +74,7 @@ public final class CsvParser {
         try {
             byte[] bytes = input.readNBytes(CsvLimits.MAX_BYTES + 1);
             if (bytes.length > CsvLimits.MAX_BYTES) {
-                throw new CsvFormatException("The file is larger than 2 MB");
+                throw new CsvTooLargeException();
             }
             return bytes;
         } catch (IOException e) {
