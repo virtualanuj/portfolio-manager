@@ -1,12 +1,14 @@
 package com.portfoliomanager;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /** Shares one Postgres 16 container across every integration test in the JVM. */
 @SpringBootTest
+@AutoConfigureMockMvc
 public abstract class AbstractIntegrationTest {
 
     private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16");
