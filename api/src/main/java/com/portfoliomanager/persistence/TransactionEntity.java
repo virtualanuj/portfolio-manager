@@ -67,7 +67,7 @@ public class TransactionEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    protected TransactionEntity() {}
+    public TransactionEntity() {}
 
     public static TransactionEntity trade(
             UUID accountId,
