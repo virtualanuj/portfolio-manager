@@ -1,0 +1,78 @@
+package com.portfoliomanager.e2e;
+
+import com.portfoliomanager.pricing.PriceResult;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * Lets end-to-end tests script the stub providers. It exists only under the {@code e2e} profile and
+ * must never be enabled anywhere else.
+ */
+@RestController
+@Profile("e2e")
+@RequestMapping("/api/e2e")
+public class E2eController {
+
+    /** One scripted answer: either a price (with optional previous close and date) or an error. */
+    public record StubPrice(
+            BigDecimal price, BigDecimal prevPrice, LocalDate priceDate, String error) {}
+
+    /** A provider's script; {@code unreachable} makes every fetch fail. */
+    public record ProviderScript(Boolean unreachable, Map<String, StubPrice> prices) {}
+
+    public record Script(ProviderScript yahoo, ProviderScript coingecko) {}
+
+    private final StubPriceProvider yahoo;
+    private final StubPriceProvider coingecko;
+
+    E2eController(StubPriceProvider yahooStub, StubPriceProvider coingeckoStub) {
+        this.yahoo = yahooStub;
+        this.coingecko = coingeckoStub;
+    }
+
+    /** Replaces the script of each provider that is present in the body. */
+    @PutMapping("/prices")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void script(@RequestBody Script script) {
+        apply(yahoo, script.yahoo());
+        apply(coingecko, script.coingecko());
+    }
+
+    @PostMapping("/reset")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void reset() {
+        yahoo.configure(false, Map.of());
+        coingecko.configure(false, Map.of());
+    }
+
+    private static void apply(StubPriceProvider provider, ProviderScript script) {
+        if (script == null) {
+            return;
+        }
+        Map<String, PriceResult> answers = new LinkedHashMap<>();
+        if (script.prices() != null) {
+            script.prices()
+                    .forEach(
+                            (id, stub) ->
+                                    answers.put(
+                                            id,
+                                            stub.error() != null
+                                                    ? PriceResult.failure(stub.error())
+                                                    : PriceResult.ok(
+                                                            stub.price(),
+                                                            stub.prevPrice(),
+                                                            stub.priceDate())));
+        }
+        provider.configure(Boolean.TRUE.equals(script.unreachable()), answers);
+    }
+}

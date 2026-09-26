@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -26,6 +27,7 @@ import tools.jackson.databind.json.JsonMapper;
  * from it.
  */
 @Component
+@Profile("!e2e")
 public class CoinGeckoProvider implements PriceProvider {
 
     private static final int PRICE_SCALE = 8;

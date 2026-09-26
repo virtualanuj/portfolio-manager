@@ -19,12 +19,10 @@ import com.portfoliomanager.persistence.TransactionRepository;
 import com.portfoliomanager.pricing.PriceResult;
 import com.portfoliomanager.pricing.PriceSource;
 import com.portfoliomanager.testsupport.FakePriceProvider;
+import com.portfoliomanager.testsupport.RefreshTestConfig;
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -36,82 +34,15 @@ import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.transaction.PlatformTransactionManager;
 
-@Import(RefreshServiceIT.TestBeans.class)
+@Import(RefreshTestConfig.class)
 class RefreshServiceIT extends AbstractIntegrationTest {
 
-    static final Instant NOW = Instant.parse("2026-09-26T10:00:00Z");
-
-    /** Collects refresh tasks instead of running them, so a test decides when the worker runs. */
-    static final class ManualRunner implements RefreshRunner {
-        final List<Runnable> tasks = new ArrayList<>();
-
-        @Override
-        public synchronized void run(Runnable task) {
-            tasks.add(task);
-        }
-
-        synchronized void runAll() {
-            List<Runnable> pending = List.copyOf(tasks);
-            tasks.clear();
-            pending.forEach(Runnable::run);
-        }
-    }
-
-    @TestConfiguration
-    static class TestBeans {
-        @Bean
-        @Primary
-        Clock fixedClock() {
-            return Clock.fixed(NOW, ZoneOffset.UTC);
-        }
-
-        @Bean
-        ManualRunner manualRunner() {
-            return new ManualRunner();
-        }
-
-        @Bean
-        FakePriceProvider fakeYahoo() {
-            return new FakePriceProvider(PriceSource.YAHOO);
-        }
-
-        @Bean
-        FakePriceProvider fakeCoinGecko() {
-            return new FakePriceProvider(PriceSource.COINGECKO);
-        }
-
-        @Bean
-        @Primary
-        PriceService fakePriceService(
-                FakePriceProvider fakeYahoo,
-                FakePriceProvider fakeCoinGecko,
-                InstrumentRepository instruments,
-                com.portfoliomanager.persistence.PriceRepository prices,
-                Clock clock,
-                PlatformTransactionManager transactionManager) {
-            return new PriceService(
-                    List.of(fakeYahoo, fakeCoinGecko),
-                    instruments,
-                    prices,
-                    clock,
-                    transactionManager);
-        }
-
-        @Bean
-        @Primary
-        RefreshRunner primaryRunner(ManualRunner manualRunner) {
-            return manualRunner;
-        }
-    }
+    static final Instant NOW = RefreshTestConfig.NOW;
 
     @Autowired private RefreshService service;
-    @Autowired private ManualRunner runner;
+    @Autowired private RefreshTestConfig.ManualRunner runner;
     @Autowired private FakePriceProvider fakeYahoo;
     @Autowired private FakePriceProvider fakeCoinGecko;
     @Autowired private RefreshRunRepository runs;

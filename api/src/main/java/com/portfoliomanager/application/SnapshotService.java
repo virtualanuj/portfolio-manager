@@ -45,6 +45,16 @@ public class SnapshotService {
         this.transactions = new TransactionTemplate(transactionManager);
     }
 
+    /** Stored snapshots between the dates (inclusive), oldest first. */
+    public List<SnapshotPoint> history(LocalDate from, LocalDate to) {
+        return snapshots.findBySnapDateBetweenOrderBySnapDateAsc(from, to).stream()
+                .map(
+                        s ->
+                                new SnapshotPoint(
+                                        s.getSnapDate(), s.getTotalValue(), s.getTotalCostBasis()))
+                .toList();
+    }
+
     /** Upserts today's snapshot and replaces today's per-holding rows. Returns the date written. */
     public LocalDate snapshotToday() {
         LocalDate today = LocalDate.now(clock);

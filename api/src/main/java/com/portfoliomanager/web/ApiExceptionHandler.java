@@ -3,6 +3,7 @@ package com.portfoliomanager.web;
 import com.portfoliomanager.application.ConflictException;
 import com.portfoliomanager.application.NotFoundException;
 import com.portfoliomanager.application.OversellException;
+import com.portfoliomanager.application.RefreshInProgressException;
 import com.portfoliomanager.application.ValidationException;
 import java.util.List;
 import java.util.UUID;
@@ -59,6 +60,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 List.of(
                         new ProblemFactory.FieldError(
                                 exception.getField(), exception.getMessage())));
+    }
+
+    @ExceptionHandler(RefreshInProgressException.class)
+    ProblemDetail refreshInProgress(RefreshInProgressException exception) {
+        ProblemDetail problem = ProblemFactory.of(HttpStatus.CONFLICT, exception.getMessage());
+        problem.setProperty("runId", exception.getRunId().toString());
+        return problem;
     }
 
     @ExceptionHandler(OversellException.class)
