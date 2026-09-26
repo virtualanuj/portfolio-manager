@@ -1,0 +1,9 @@
+[
+  { "symbol": "VTSAX", "assetType": "MUTUAL_FUND", "price": "144.20" },
+  { "symbol": "VTI", "assetType": "ETF", "price": "312.45" },
+  { "symbol": "VXUS", "assetType": "ETF", "price": "68.30" },
+  { "symbol": "AAPL", "assetType": "STOCK", "price": "228.90" },
+  { "symbol": "BTC", "assetType": "CRYPTO", "price": "104200" },
+  { "symbol": "ETH", "assetType": "CRYPTO", "price": "2980.50" },
+  { "symbol": "DOGE", "assetType": "CRYPTO", "price": "0.21" }
+]

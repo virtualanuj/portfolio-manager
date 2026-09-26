@@ -1,4 +1,5 @@
 import {
+  compareDecimals,
   groupThousands,
   isZero,
   parseDecimal,
@@ -86,4 +87,13 @@ export function formatPoints(value: DecimalString | null, options: SignOption = 
   if (value === null) return DASH;
   const { rounded, text } = fixed(value, 2);
   return withSign(rounded, `${text} pts`, options.signed);
+}
+
+/**
+ * A per-unit cost such as an average cost: whole cents from one dollar up, and the digits a
+ * fraction of a dollar needs below that.
+ */
+export function formatCost(value: DecimalString | null): string {
+  if (value === null) return DASH;
+  return compareDecimals(value, "1") >= 0 ? formatMoney(value) : formatUnitPrice(value);
 }

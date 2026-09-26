@@ -15,7 +15,7 @@ export function Delta({ amount, percent = null }: Props) {
   return (
     <span
       className={cn(
-        "inline-flex flex-wrap items-baseline gap-x-1.5",
+        "inline-flex flex-wrap items-baseline gap-x-1.5 whitespace-nowrap",
         sign === "positive" && "text-gain",
         sign === "negative" && "text-loss",
       )}
@@ -35,7 +35,7 @@ export function PctDelta({ value }: { value: DecimalString | null }) {
   return (
     <span
       className={cn(
-        "inline-flex flex-wrap items-baseline gap-x-1.5",
+        "inline-flex flex-wrap items-baseline gap-x-1.5 whitespace-nowrap",
         sign === "positive" && "text-gain",
         sign === "negative" && "text-loss",
       )}

@@ -1,0 +1,22 @@
+date,account,symbol,asset_type,type,quantity,price,split_ratio,source_id,account_type,note
+2024-02-01,Fidelity 401k,VTSAX,MUTUAL_FUND,BUY,40.5,112.30,,,RETIREMENT,Opening contribution
+2024-06-03,Fidelity 401k,VTSAX,MUTUAL_FUND,BUY,12.25,118.60,,,,Payroll
+2024-10-01,Fidelity 401k,VTSAX,MUTUAL_FUND,BUY,11.8,125.10,,,,Payroll
+2025-03-03,Fidelity 401k,VTSAX,MUTUAL_FUND,REINVEST,0.62,131.40,,,,Distribution reinvested
+2025-08-01,Fidelity 401k,VTSAX,MUTUAL_FUND,BUY,10.4,138.20,,,,Payroll
+2024-03-04,Brokerage,VTI,ETF,BUY,25,242.10,,,BROKERAGE,
+2024-09-16,Brokerage,VTI,ETF,BUY,15,262.55,,,,
+2025-04-08,Brokerage,VTI,ETF,SELL,12,271.90,,,,Trimmed for house fund
+2025-09-15,Brokerage,VTI,ETF,BUY,8,301.20,,,,
+2024-04-10,Brokerage,VXUS,ETF,BUY,60,59.40,,,,
+2025-01-14,Brokerage,VXUS,ETF,BUY,40,58.15,,,,
+2023-11-06,Brokerage,AAPL,STOCK,BUY,10,178.30,,,,
+2024-06-10,Brokerage,AAPL,STOCK,SPLIT,,,4:1,,,4-for-1 split
+2025-02-18,Brokerage,AAPL,STOCK,BUY,15,230.10,,,,
+2025-07-22,Brokerage,AAPL,STOCK,SELL,20,214.70,,,,
+2024-01-22,Coinbase,BTC,CRYPTO,BUY,0.25,39800,,bitcoin,CRYPTO,
+2024-11-18,Coinbase,BTC,CRYPTO,BUY,0.12,90500,,,,
+2025-05-05,Coinbase,BTC,CRYPTO,SELL,0.1,96200,,,,
+2024-03-12,Coinbase,ETH,CRYPTO,BUY,3.5,3850.25,,ethereum,,
+2025-06-30,Coinbase,ETH,CRYPTO,BUY,1.75,2410.80,,,,
+2025-03-10,Coinbase,DOGE,CRYPTO,BUY,2500,0.18,,dogecoin,,Small speculative bet

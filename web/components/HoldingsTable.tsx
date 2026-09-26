@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
 import { Select } from "@/components/ui/Select";
 import { compareDecimals } from "@/lib/decimal";
-import { formatQty, formatUnitPrice } from "@/lib/format";
+import { formatCost, formatQty, formatUnitPrice } from "@/lib/format";
 import type { AssetType, HoldingRow } from "@/lib/types";
 
 const ASSET_LABELS: Record<AssetType, string> = {
@@ -83,7 +83,7 @@ export function HoldingsTable({ rows, loading }: Props) {
         "avgCost",
         "Avg cost",
         (r) => r.avgCost,
-        (r) => formatUnitPrice(r.avgCost),
+        (r) => formatCost(r.avgCost),
       ),
       decimalColumn(
         "price",

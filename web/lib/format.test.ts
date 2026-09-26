@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatCost,
   formatDate,
   formatMoney,
   formatPct,
@@ -109,5 +110,18 @@ describe("formatPoints", () => {
     expect(formatPoints(d("15"), { signed: true })).toBe("+15.00 pts");
     expect(formatPoints(d("-2.5"), { signed: true })).toBe("-2.50 pts");
     expect(formatPoints(null)).toBe("—");
+  });
+});
+
+describe("formatCost", () => {
+  it("rounds to cents from one dollar up", () => {
+    expect(formatCost(d("119.0410"))).toBe("$119.04");
+    expect(formatCost(d("62333.3333"))).toBe("$62,333.33");
+  });
+
+  it("keeps the digits a small cost needs", () => {
+    expect(formatCost(d("0.1800"))).toBe("$0.18");
+    expect(formatCost(d("0.00012"))).toBe("$0.00012");
+    expect(formatCost(null)).toBe("—");
   });
 });
