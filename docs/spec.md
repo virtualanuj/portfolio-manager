@@ -302,9 +302,18 @@ cd web && npm run dev                    # 127.0.0.1:3000, API_BASE_URL=http://1
 | Domain unit | JUnit 5 + AssertJ | `FifoEngine`: multi-lot sells, partial lot consumption, oversell violation, splits (2:1, 1:10 reverse), reinvest, same-day ordering, rounding. Valuation: unpriced/stale handling, day change. Allocation and drift. Property-style check: basis never negative, quantity never negative. |
 | Persistence/integration | Spring Boot Test + Testcontainers (Postgres 16) | Flyway migrations apply; snapshot upsert idempotency; single-flight `refresh_run` index; delete/`RESTRICT` rules; check constraints. |
 | Providers | WireMock with recorded fixtures | Yahoo/CoinGecko parsing, error and timeout paths, batching. No live network in CI. |
-| API | MockMvc/WebTestClient | Validation errors (problem+json), replay-on-edit `422`, holdings/dashboard JSON, import staging and commit, refresh 202/409. Auth: proxy-secret filter, `401`s, enrollment rules (cloud profile tests). |
+| API | MockMvc | Validation errors (problem+json), replay-on-edit `422`, holdings/dashboard JSON, import staging and commit, refresh 202/409. Auth: proxy-secret filter, `401`s, enrollment rules (cloud profile tests). |
+| Architecture | ArchUnit (runs in `./gradlew test`) | Layering rule: `domain` imports nothing from Spring/JPA/Jackson; `web → application → domain`. |
 | Frontend unit | Vitest + Testing Library | Formatters, forms, table sorting/filtering, stale badges. |
-| End-to-end | Playwright against local stack with stubbed providers | Golden path below. |
+| End-to-end | Playwright against local stack with stubbed providers (`e2e` profile) | Golden path (below), failure path, import path, offline path. |
+| Accessibility | Playwright + axe | No serious/critical violations on every page in both themes; keyboard-only transaction entry; no page-level horizontal scroll at 400 px. |
+| Privacy/network audit | Playwright + build grep | Browser makes requests only to its own origin; no analytics or CDN references in the build (`intent.md` NFR-PRIV-1). |
+| Offline check | Stubbed unreachable providers, plus a manual run with Wi-Fi off | Refresh reports `FAILED`/`PARTIAL`, stale badges, everything else usable, manual-priced instruments still value. |
+| Docs check | `scripts/check-readme-links.sh` | Every relative link and path in `README.md` exists; README followed literally from a clean clone reaches a working dashboard. |
+
+**Gate:** `scripts/check.sh` (API tests, web tests, lint, build) must be green before each milestone closes; the touched subproject's full suite must be green before every commit. No test calls a live price API.
+
+**Golden path (end-to-end).** Create an account; create an ETF, a crypto (with CoinGecko id), and a manual-priced fund; enter buys, a partial sell, and a split; set the manual price; click Refresh with stubbed prices. Assert: dashboard totals and per-holding gain/loss; allocation percentages; exactly one history point. Click Refresh again and assert it is still one point.
 
 **Mapping to `intent.md` §9 verification**
 
@@ -321,21 +330,23 @@ cd web && npm run dev                    # 127.0.0.1:3000, API_BASE_URL=http://1
 
 ## 14. Build order and risks
 
-**Milestones** (each ends with passing tests)
-1. **M0 Scaffold:** monorepo, `docker-compose.yml`, Gradle project, Next.js app, proxy route, Flyway V1, health check.
-2. **M1 Domain core:** `FifoEngine`, valuation, allocation, with the full unit suite.
-3. **M2 CRUD + holdings:** accounts, instruments, transactions, holdings and dashboard endpoints; matching UI screens.
-4. **M3 Pricing + refresh + snapshots:** providers, async refresh, snapshot writing, stale indicators, history chart.
-5. **M4 CSV import:** schema, staging, preview UI, commit.
-6. **M5 Allocation:** targets, allocation view. *(Phase 1 complete.)*
-7. **M6 Cloud:** passkey auth, proxy secret, Dockerfile, Render + Vercel setup, deployed smoke test. *(Phase 2 complete.)*
+**Milestones** (each ends with passing tests; the detailed tasks and requirement mapping are in [`plan.md`](./plan.md))
+1. **M0 Scaffold:** monorepo, `docker-compose.yml`, Gradle project, Next.js app, proxy route, Flyway V1, health check, dev scripts.
+2. **M1 Domain core:** `FifoEngine`, valuation, allocation, staleness policy, with the full unit suite.
+3. **M2 Data entry and holdings:** accounts, instruments, transactions, holdings and dashboard endpoints; design system and core screens.
+4. **M3 Pricing, refresh, snapshots:** providers, async refresh, snapshot writing, stale indicators, history chart.
+5. **M4 CSV import and export:** schema, staging, preview UI, commit, exports.
+6. **M5 Allocation:** allocation view and target editor.
+7. **M6 Local hardening and acceptance:** end-to-end, accessibility, privacy audit, demo data, README, acceptance record. *(Phase 1 complete; you sign off before M7.)*
+8. **M7 Cloud auth:** proxy-secret filter, passkeys, sessions, bootstrap-secret recovery.
+9. **M8 Cloud deployment:** Dockerfile, Render + Vercel setup, deployed smoke test, backup runbook. *(Phase 2 complete.)*
 
 **Risks**
 | Risk | Mitigation |
 |---|---|
 | Yahoo's unofficial API changes or blocks requests | Isolated behind `PriceProvider`; no automatic fallback, so manual override is the escape hatch; provider fixtures make breakage easy to spot. |
 | Mutual fund NAVs not on Yahoo | `MANUAL` price source with staleness warning at 45 days. |
-| Passkeys through a proxy across two platforms | RP ID/origin pinned by env; test early in M6 with a throwaway deployment before real data. |
+| Passkeys through a proxy across two platforms | RP ID/origin pinned by env; test locally in M7 (virtual authenticator) before any deployment, then again on a throwaway deployment before real data. |
 | Render free tier limits (sleep, Postgres expiry) | Cold-start UX state; regular manual export (re-importable CSV); revisit a paid database if the data becomes hard to recreate. |
 | Snapshot gaps because refresh is manual | Accepted trade-off of the on-demand decision; chart shows only real points. |
 
