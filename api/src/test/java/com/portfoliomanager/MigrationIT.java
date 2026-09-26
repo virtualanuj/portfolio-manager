@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,20 @@ class MigrationIT extends AbstractIntegrationTest {
     private UUID accountId;
     private UUID instrumentId;
 
-    @BeforeEach
-    void seed() {
+    private void clearTables() {
         jdbc.execute(
                 "TRUNCATE snapshot_holding, snapshot, \"transaction\", price, refresh_run,"
                         + " instrument, account CASCADE");
+    }
+
+    @AfterEach
+    void cleanUp() {
+        clearTables();
+    }
+
+    @BeforeEach
+    void seed() {
+        clearTables();
         accountId = UUID.randomUUID();
         instrumentId = UUID.randomUUID();
         jdbc.update(
