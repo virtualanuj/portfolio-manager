@@ -162,8 +162,8 @@ Package layout in `api` (spec §3): `com.portfoliomanager.{domain, persistence, 
 
 ### M0-T2: API project, profiles, loopback guard (NFR-SEC-2, P-4)
 - **Files:** `api/` (Gradle Kotlin DSL, Boot 4.1.1, Java 21 toolchain), `application.yml`, `application-local.yml`, `com/portfoliomanager/config/LoopbackGuard.java`, test `LoopbackGuardTest.java`.
-- **Steps:** (1) Write `LoopbackGuardTest`: `"0.0.0.0"` throws `IllegalStateException`; `127.0.0.1`, `::1`, `localhost` pass. Run, see it fail. (2) Implement `LoopbackGuard` as a `@Profile("local")` startup check that reads `server.address`; absent address counts as non-loopback. (3) Config: `spring.jpa.hibernate.ddl-auto=validate`, `spring.jpa.open-in-view=false`, `app.timezone=${APP_TIMEZONE:UTC}`; `local` profile: datasource `jdbc:postgresql://localhost:5432/portfolio`, `server.address=127.0.0.1`, port 8080, expose only `health` on actuator. (4) Add the `/api` context: controllers map under `/api/...` (set via a shared `@RequestMapping("/api")` convention or `server.servlet.context-path` is **not** used, so the health path is `/actuator/health/liveness` and the proxy maps `/api/actuator/...` only if you choose; decide and record).
-- **Verify:** `./gradlew test` green; `./gradlew bootRun --args=--spring.profiles.active=local` then `curl 127.0.0.1:8080/actuator/health/liveness`.
+- **Steps:** (1) Write `LoopbackGuardTest`: `"0.0.0.0"` throws `IllegalStateException`; `127.0.0.1`, `::1`, `localhost` pass. Run, see it fail. (2) Implement `LoopbackGuard` as a `@Profile("local")` startup check that reads `server.address`; absent address counts as non-loopback. (3) Config: `spring.jpa.hibernate.ddl-auto=validate`, `spring.jpa.open-in-view=false`, `app.timezone=${APP_TIMEZONE:UTC}`; `local` profile: datasource `jdbc:postgresql://localhost:5432/portfolio`, `server.address=127.0.0.1`, port 8080, expose only `health` on actuator. (4) Add the `/api` context: controllers map under `/api/...` (set via a shared `@RequestMapping("/api")` convention or `server.servlet.context-path` is **not** used, so the health path is `/api/actuator/health/liveness` and the proxy maps `/api/actuator/...` only if you choose; decide and record).
+- **Verify:** `./gradlew test` green; `./gradlew bootRun --args=--spring.profiles.active=local` then `curl 127.0.0.1:8080/api/actuator/health/liveness`.
 
 ### M0-T3: Flyway baseline schema (spec §4, NFR-NUM-1)
 - **Files:** `db/migration/V1__baseline.sql`, `MigrationIT.java`, `AbstractIntegrationTest.java` (singleton Testcontainers Postgres 16).
@@ -476,7 +476,7 @@ Package layout in `api` (spec §3): `com.portfoliomanager.{domain, persistence, 
 
 ### M7-T1: Cloud profile and proxy-secret filter (NFR-SEC-1, P-5, V-8)
 - **Files:** `application-cloud.yml`, `auth/ProxySecretFilter.java`, `ProxySecretFilterTest.java`, `CloudProfileIT.java`; update `web/lib/proxy.ts` (already attaches the header when `PROXY_SECRET` is set).
-- **Steps:** tests: request without header → `403`; wrong value → `403`; correct value passes; comparison is constant-time (`MessageDigest.isEqual`); `/actuator/health/liveness` is exempt and leaks nothing; CORS is disabled; the filter is first in the chain; startup fails under `cloud` if `PROXY_SECRET` is empty. Implement.
+- **Steps:** tests: request without header → `403`; wrong value → `403`; correct value passes; comparison is constant-time (`MessageDigest.isEqual`); `/api/actuator/health/liveness` is exempt and leaks nothing; CORS is disabled; the filter is first in the chain; startup fails under `cloud` if `PROXY_SECRET` is empty. Implement.
 - **Verify:** `./gradlew test --tests '*ProxySecretFilterTest' --tests '*CloudProfileIT'`.
 
 ### M7-T2: Sessions, security chain, CSRF (NFR-SEC-1)
@@ -521,12 +521,12 @@ Package layout in `api` (spec §3): `com.portfoliomanager.{domain, persistence, 
 
 ### M8-T1: API container and JDBC URL shim (P-3, infra)
 - **Files:** `api/Dockerfile` (multi-stage: Gradle build → Temurin 21 JRE, layered jar), `api/.dockerignore`, `config/DatabaseUrlConfig.java`, test.
-- **Steps:** test first: a `postgres://user:pass@host:5432/db` URL converts to `jdbc:postgresql://host:5432/db` with credentials split out; `DATABASE_URL` absent leaves the local config alone. Set `-XX:MaxRAMPercentage=70` and lazy initialisation to fit small instances; health check on `/actuator/health/liveness`; runs as non-root.
+- **Steps:** test first: a `postgres://user:pass@host:5432/db` URL converts to `jdbc:postgresql://host:5432/db` with credentials split out; `DATABASE_URL` absent leaves the local config alone. Set `-XX:MaxRAMPercentage=70` and lazy initialisation to fit small instances; health check on `/api/actuator/health/liveness`; runs as non-root.
 - **Verify:** `docker build -t portfolio-api api` and run it against the local Postgres with `SPRING_PROFILES_ACTIVE=cloud` and dummy secrets; it starts and migrates.
 
 ### M8-T2: Render provisioning (P-3, NFR-COST-1)
 - **Files:** `docs/deploy-cloud.md` (runbook), optional `render.yaml`.
-- **Steps:** create the Render Postgres (same region) and Docker web service; set `SPRING_PROFILES_ACTIVE=cloud`, `DATABASE_URL`, `PROXY_SECRET`, `BOOTSTRAP_SECRET`, `WEBAUTHN_RP_ID`, `WEBAUTHN_ORIGIN`, `COINGECKO_API_KEY`, `APP_TIMEZONE=UTC`; health check path `/actuator/health/liveness`. **Check Render's current free-database lifetime and encryption-at-rest statement before storing real data** and record the findings (intent §8, spec §11). Update the README: link `docs/deploy-cloud.md` from its "Cloud deployment" section and add it to the docs index, then re-run `scripts/check-readme-links.sh`.
+- **Steps:** create the Render Postgres (same region) and Docker web service; set `SPRING_PROFILES_ACTIVE=cloud`, `DATABASE_URL`, `PROXY_SECRET`, `BOOTSTRAP_SECRET`, `WEBAUTHN_RP_ID`, `WEBAUTHN_ORIGIN`, `COINGECKO_API_KEY`, `APP_TIMEZONE=UTC`; health check path `/api/actuator/health/liveness`. **Check Render's current free-database lifetime and encryption-at-rest statement before storing real data** and record the findings (intent §8, spec §11). Update the README: link `docs/deploy-cloud.md` from its "Cloud deployment" section and add it to the docs index, then re-run `scripts/check-readme-links.sh`.
 - **Verify:** service healthy; `curl` to the public Render URL without the secret returns `403`; the README link check passes.
 
 ### M8-T3: Vercel project (P-5)

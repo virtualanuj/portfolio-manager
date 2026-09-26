@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: portfolio-manager-api
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+app:
+  timezone: ${APP_TIMEZONE:UTC}
+
+management:
+  endpoints:
+    web:
+      base-path: /api/actuator

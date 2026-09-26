@@ -237,7 +237,7 @@ REST + JSON, all under `/api`. Decimals are **strings** (`"12.50000000"`), dates
 | Refresh | `POST /refresh` → `202 {runId}` or `409` · `GET /refresh/latest` · `GET /refresh/{id}` |
 | Import | `POST /imports` · `GET /imports/{id}` · `POST /imports/{id}/commit` · `DELETE /imports/{id}` |
 | Export | `GET /export/transactions.csv` (generic import schema, so it can be re-imported to rebuild positions) · `GET /export/snapshots.csv` · `GET /export/all.json` (accounts, instruments, transactions, manual prices, targets, snapshots) |
-| Ops | `GET /actuator/health/liveness` (public, for Render health checks; exempt from the proxy-secret filter and returns no data) |
+| Ops | `GET /api/actuator/health/liveness` (public, for Render health checks; exempt from the proxy-secret filter and returns no data) |
 
 Example `GET /holdings` row:
 ```json
@@ -288,7 +288,7 @@ cd web && npm run dev                    # 127.0.0.1:3000, API_BASE_URL=http://1
 ```
 
 **Cloud**
-- **Render web service** (Docker): multi-stage `api/Dockerfile` (Gradle build → Eclipse Temurin 21 JRE, layered jar), `-XX:MaxRAMPercentage=70`, lazy bean init to fit small instances. Health check path `/actuator/health/liveness`. Render's Postgres connection string is `postgres://…`; a small config shim converts it to the JDBC URL. Flyway runs on startup.
+- **Render web service** (Docker): multi-stage `api/Dockerfile` (Gradle build → Eclipse Temurin 21 JRE, layered jar), `-XX:MaxRAMPercentage=70`, lazy bean init to fit small instances. Health check path `/api/actuator/health/liveness`. Render's Postgres connection string is `postgres://…`; a small config shim converts it to the JDBC URL. Flyway runs on startup.
 - **Render Postgres:** same region as the web service (private network URL).
 - **Vercel project** rooted at `web/`, env: `API_BASE_URL` (Render service URL), `PROXY_SECRET`.
 - **Env vars (API):** `SPRING_PROFILES_ACTIVE=cloud`, `DATABASE_URL`, `PROXY_SECRET`, `BOOTSTRAP_SECRET`, `WEBAUTHN_RP_ID`, `WEBAUTHN_ORIGIN`, `COINGECKO_API_KEY`, `APP_TIMEZONE`.
