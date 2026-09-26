@@ -1,7 +1,10 @@
 package com.portfoliomanager;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -15,6 +18,15 @@ public abstract class AbstractIntegrationTest {
 
     static {
         POSTGRES.start();
+    }
+
+    @Autowired private JdbcTemplate baseJdbc;
+
+    @BeforeEach
+    void truncateAllTables() {
+        baseJdbc.execute(
+                "TRUNCATE snapshot_holding, snapshot, \"transaction\", price, refresh_run,"
+                        + " target_allocation, import_row, import_batch, instrument, account CASCADE");
     }
 
     @DynamicPropertySource
