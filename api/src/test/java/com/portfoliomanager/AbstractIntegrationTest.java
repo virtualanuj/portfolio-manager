@@ -20,6 +20,15 @@ public abstract class AbstractIntegrationTest {
         POSTGRES.start();
     }
 
+    /** Connection settings of the shared container, for tests that boot their own application. */
+    public static String[] datasourceProperties() {
+        return new String[] {
+            "spring.datasource.url=" + POSTGRES.getJdbcUrl(),
+            "spring.datasource.username=" + POSTGRES.getUsername(),
+            "spring.datasource.password=" + POSTGRES.getPassword()
+        };
+    }
+
     @Autowired private JdbcTemplate baseJdbc;
 
     @BeforeEach

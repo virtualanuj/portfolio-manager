@@ -13,4 +13,7 @@ echo "== api: format, tests =="
 echo "== web: format, tests, lint, build =="
 (cd web && npm run format:check && npm run test && npm run lint && npm run build)
 
+echo "== privacy: no trackers or CDNs in the build =="
+scripts/check-privacy.sh
+
 echo "All checks passed."
