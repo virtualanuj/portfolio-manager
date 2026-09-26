@@ -50,7 +50,7 @@ Gradle comes from the wrapper (`./gradlew`); do not install it. The internet is 
 git clone <this repository> portfolio-manager
 cd portfolio-manager
 source scripts/env.sh     # JDK 21 on PATH, Node 22 via nvm
-scripts/dev.sh            # Postgres, API and web
+scripts/dev.sh            # Postgres, API and web (the first run installs web dependencies)
 ```
 
 You should see, in order: the `db` container reported healthy, the API log line `Started ApiApplication`, and Next.js printing `Ready`. Then open <http://127.0.0.1:3000>.

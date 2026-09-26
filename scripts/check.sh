@@ -7,6 +7,11 @@ cd "$ROOT"
 # shellcheck source=scripts/env.sh
 source scripts/env.sh
 
+if [ ! -d web/node_modules ]; then
+  echo "== web: installing dependencies (first run) =="
+  (cd web && npm ci)
+fi
+
 echo "== api: format, tests =="
 (cd api && ./gradlew spotlessCheck test)
 

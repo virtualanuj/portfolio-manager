@@ -10,6 +10,11 @@ source scripts/env.sh
 
 set -m # each background job gets its own process group so we can stop the whole tree
 
+if [ ! -d web/node_modules ]; then
+  echo "Installing web dependencies (first run)..."
+  (cd web && npm ci)
+fi
+
 echo "Starting Postgres..."
 docker compose up -d --wait db
 
