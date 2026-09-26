@@ -348,6 +348,7 @@ cd web && npm run dev                    # 127.0.0.1:3000, API_BASE_URL=http://1
 | Price feed fallback | None. Yahoo only for stocks/ETFs/funds; on failure prices go stale and the user can set a manual price. |
 | Snapshot timezone | UTC. |
 | Custom domain | Use `*.vercel.app` for now. If the domain changes, passkeys must be re-enrolled with the bootstrap secret. |
+| CSV parsing | Apache Commons CSV (a library, not a hand-written parser), wrapped in `importing.CsvParser`. BOM stripping and the 2 MB / 5,000-row limits are enforced by our wrapper. |
 
 ## 16. Open questions
 
