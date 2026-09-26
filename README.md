@@ -46,16 +46,31 @@ Gradle comes from the wrapper (`./gradlew`); do not install it. The internet is 
 
 ## Quick start (local)
 
-```bash
-git clone <this repository> portfolio-manager
-cd portfolio-manager
-source scripts/env.sh     # JDK 21 on PATH, Node 22 via nvm
-scripts/dev.sh            # Postgres, API and web (the first run installs web dependencies)
-```
+Follow these steps in order.
 
-You should see, in order: the `db` container reported healthy, the API log line `Started ApiApplication`, and Next.js printing `Ready`. Then open <http://127.0.0.1:3000>.
+1. **Start Docker Desktop** and wait until it says it is running (`docker info` should print details, not an error).
+2. **Free port 5432.** Postgres for this app uses `127.0.0.1:5432`. If another project's database container already uses it, stop that container first (`docker ps` shows it, `docker stop <name>` stops it).
+3. **Get the code and open a terminal in it:**
+   ```bash
+   git clone <this repository> portfolio-manager
+   cd portfolio-manager
+   ```
+4. **Set up the toolchain** (JDK 21 and Node 22) for this terminal. Do this in every new terminal:
+   ```bash
+   source scripts/env.sh
+   java -version    # should say 21
+   node -v          # should say v22
+   ```
+5. **Start everything:**
+   ```bash
+   scripts/dev.sh
+   ```
+   It starts Postgres, waits until it is healthy, then starts the API and the web app. The first run also installs the web dependencies and downloads Gradle, so it takes a few minutes. You should see, in order: the `db` container reported healthy, the API log line `Started ApiApplication`, and Next.js printing `Ready`.
+6. **Open the app** at <http://127.0.0.1:3000>. It starts empty.
+7. **Optional: load demo data.** In a second terminal in the same folder, run `scripts/seed-demo.sh`, then reload the page.
+8. **Stop:** press Ctrl-C in the terminal running `scripts/dev.sh`. That stops the API and the web app. The Postgres container keeps running (your data stays); stop it with `docker compose down`, and add `-v` only if you also want to delete the data.
 
-Press Ctrl-C to stop the API and web server. The Postgres container keeps running; stop it with `docker compose down` (add `-v` to also delete its data).
+Next time, repeat steps 4 and 5 only (and step 1 if Docker is not running).
 
 ## Running the pieces manually
 
