@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
-import { Schibsted_Grotesk } from "next/font/google";
+import { IBM_Plex_Sans } from "next/font/google";
 
 import { AppShell } from "@/components/AppShell";
 
 import "./globals.css";
 
-const schibsted = Schibsted_Grotesk({ variable: "--font-schibsted", subsets: ["latin"] });
+const plex = IBM_Plex_Sans({
+  variable: "--font-plex",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
 
 export const metadata: Metadata = {
   title: "Portfolio Manager",
@@ -17,7 +21,7 @@ const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(t==="light"||t=
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={schibsted.variable} suppressHydrationWarning>
+    <html lang="en" className={plex.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>

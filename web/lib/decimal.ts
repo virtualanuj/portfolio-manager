@@ -48,3 +48,13 @@ export function isZero(value: ScaledDecimal): boolean {
 export function groupThousands(integer: string): string {
   return integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+/** Compares two decimal strings numerically without going through floating point. */
+export function compareDecimals(left: string, right: string): number {
+  const a = parseDecimal(left);
+  const b = parseDecimal(right);
+  const scale = Math.max(a.scale, b.scale);
+  const signedA = roundToScale(a, scale).units * (a.negative ? -1n : 1n);
+  const signedB = roundToScale(b, scale).units * (b.negative ? -1n : 1n);
+  return signedA < signedB ? -1 : signedA > signedB ? 1 : 0;
+}

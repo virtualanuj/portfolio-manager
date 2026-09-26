@@ -15,7 +15,7 @@ export function Delta({ amount, percent = null }: Props) {
   return (
     <span
       className={cn(
-        "inline-flex items-baseline gap-1.5",
+        "inline-flex flex-wrap items-baseline gap-x-1.5",
         sign === "positive" && "text-gain",
         sign === "negative" && "text-loss",
       )}
@@ -23,6 +23,25 @@ export function Delta({ amount, percent = null }: Props) {
       <span aria-hidden="true">{arrow}</span>
       <span>{formatMoney(amount, { signed: true })}</span>
       {percent !== null && <span>({formatPct(percent, { signed: true })})</span>}
+    </span>
+  );
+}
+
+/** A percentage gain or loss on its own, with the same sign and arrow rules as {@link Delta}. */
+export function PctDelta({ value }: { value: DecimalString | null }) {
+  if (value === null) return <span>—</span>;
+  const sign = signOf(value);
+  const arrow = sign === "positive" ? "▲" : sign === "negative" ? "▼" : "•";
+  return (
+    <span
+      className={cn(
+        "inline-flex flex-wrap items-baseline gap-x-1.5",
+        sign === "positive" && "text-gain",
+        sign === "negative" && "text-loss",
+      )}
+    >
+      <span aria-hidden="true">{arrow}</span>
+      <span>{formatPct(value, { signed: true })}</span>
     </span>
   );
 }

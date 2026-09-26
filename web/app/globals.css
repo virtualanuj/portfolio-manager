@@ -79,7 +79,7 @@
   --color-warn-bg: var(--warn-bg);
   --radius-control: var(--radius-control);
   --radius-panel: var(--radius-panel);
-  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
