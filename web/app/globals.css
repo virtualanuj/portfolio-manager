@@ -1,26 +1,106 @@
 @import "tailwindcss";
 
+/* Design tokens. Light is the base; dark redefines the same roles. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  color-scheme: light;
+  --canvas: #eef2f0;
+  --surface: #ffffff;
+  --surface-sunken: #e4eae7;
+  --ink: #14231f;
+  --muted: #55665f;
+  --line: #cbd6d1;
+  --accent: #0b6e6e;
+  --accent-ink: #ffffff;
+  --gain: #17703f;
+  --gain-bg: #dcf1e5;
+  --loss: #a8322a;
+  --loss-bg: #f8e1de;
+  --warn: #8a5a00;
+  --warn-bg: #fbecc8;
+  --focus: #0b6e6e;
+  --radius-control: 0.5rem;
+  --radius-panel: 0.875rem;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --canvas: #0d1512;
+    --surface: #141e1a;
+    --surface-sunken: #0a110f;
+    --ink: #e5eee9;
+    --muted: #93a69d;
+    --line: #26352f;
+    --accent: #4cc2b0;
+    --accent-ink: #062521;
+    --gain: #5fd08f;
+    --gain-bg: #12301f;
+    --loss: #ff8d82;
+    --loss-bg: #3a1a17;
+    --warn: #f0be5a;
+    --warn-bg: #33270a;
+    --focus: #4cc2b0;
   }
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0d1512;
+  --surface: #141e1a;
+  --surface-sunken: #0a110f;
+  --ink: #e5eee9;
+  --muted: #93a69d;
+  --line: #26352f;
+  --accent: #4cc2b0;
+  --accent-ink: #062521;
+  --gain: #5fd08f;
+  --gain-bg: #12301f;
+  --loss: #ff8d82;
+  --loss-bg: #3a1a17;
+  --warn: #f0be5a;
+  --warn-bg: #33270a;
+  --focus: #4cc2b0;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-gain: var(--gain);
+  --color-gain-bg: var(--gain-bg);
+  --color-loss: var(--loss);
+  --color-loss-bg: var(--loss-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --radius-control: var(--radius-control);
+  --radius-panel: var(--radius-panel);
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
