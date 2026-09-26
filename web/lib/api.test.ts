@@ -40,6 +40,19 @@ describe("api", () => {
     expect((fetchMock.mock.calls[1] as [string, RequestInit])[1].method).toBe("PUT");
   });
 
+  it("uploads a file as multipart form data without forcing a content type", async () => {
+    const fetchMock = respond(200, { id: "b1" });
+    const file = new File(["a,b\n1,2\n"], "broker.csv", { type: "text/csv" });
+
+    await api.upload("/api/imports", file);
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.method).toBe("POST");
+    expect(init.body).toBeInstanceOf(FormData);
+    expect((init.body as FormData).get("file")).toBeInstanceOf(File);
+    expect(new Headers(init.headers).has("content-type")).toBe(false);
+  });
+
   it("returns undefined for 204 responses", async () => {
     respond(204);
 

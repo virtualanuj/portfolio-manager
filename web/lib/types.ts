@@ -101,3 +101,46 @@ export type SnapshotPoint = {
   totalValue: DecimalString;
   totalCostBasis: DecimalString;
 };
+
+export type RowStatus = "OK" | "WILL_CREATE" | "WARNING" | "ERROR";
+
+export type ImportIssue = { field: string; message: string };
+
+export type ImportRow = {
+  lineNo: number;
+  status: RowStatus;
+  values: Record<string, string>;
+  errors: ImportIssue[];
+  warnings: ImportIssue[];
+  createsAccount: boolean;
+  createsInstrument: boolean;
+  duplicate: boolean;
+};
+
+export type ImportSummary = {
+  totalRows: number;
+  ok: number;
+  willCreate: number;
+  warnings: number;
+  errors: number;
+  duplicates: number;
+  newAccounts: number;
+  newInstruments: number;
+};
+
+export type ImportPreviewData = {
+  id: string;
+  filename: string;
+  status: "STAGED" | "COMMITTED";
+  createdAt: string;
+  summary: ImportSummary;
+  fileWarnings: string[];
+  rows: ImportRow[];
+};
+
+export type ImportCommitResult = {
+  transactionsCreated: number;
+  accountsCreated: number;
+  instrumentsCreated: number;
+  duplicatesSkipped: number;
+};

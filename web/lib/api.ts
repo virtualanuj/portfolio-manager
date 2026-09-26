@@ -23,7 +23,10 @@ export class ApiError extends Error {
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const headers = new Headers({ accept: "application/json" });
   const init: RequestInit = { method, headers };
-  if (body !== undefined) {
+  if (body instanceof FormData) {
+    // The browser adds the multipart content type together with its boundary.
+    init.body = body;
+  } else if (body !== undefined) {
     headers.set("content-type", "application/json");
     init.body = JSON.stringify(body);
   }
@@ -50,4 +53,10 @@ export const api = {
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, body),
   put: <T>(path: string, body?: unknown) => request<T>("PUT", path, body),
   del: <T = void>(path: string) => request<T>("DELETE", path),
+  /** Uploads a file as multipart form data under the field name "file". */
+  upload: <T>(path: string, file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return request<T>("POST", path, form);
+  },
 };

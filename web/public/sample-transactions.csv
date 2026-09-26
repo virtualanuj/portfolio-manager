@@ -1,0 +1,7 @@
+date,account,symbol,asset_type,type,quantity,price,split_ratio,source_id,account_type,note
+2026-01-05,Fidelity 401k,VTSAX,MUTUAL_FUND,BUY,20,50,,,RETIREMENT,first buy
+2026-01-06,Brokerage,VTI,ETF,BUY,10,100,,,BROKERAGE,
+2026-02-05,Brokerage,VTI,ETF,BUY,10,120,,,,
+2026-03-05,Brokerage,VTI,ETF,SELL,15,130,,,,partial sell
+2026-04-05,Brokerage,VTI,ETF,SPLIT,,,2:1,,,
+2026-01-07,Coinbase,BTC,CRYPTO,BUY,0.5,40000,,bitcoin,CRYPTO,
